@@ -20,6 +20,7 @@
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('test-case-generator')">TestCaseGenerator</button>
                 <button class="tab-btn" onclick="switchTab('sql-creation')">DataCompleteness SQL Creation</button>
+                <button class="tab-btn" onclick="switchTab('test-strategy-generator')">Test Strategy Generator</button>
             </div>
 
             <div id="test-case-generator" class="tab-content active">
@@ -51,6 +52,47 @@
                         <pre id="tc-criteria" class="code-block"></pre>
                         <h3>Generated Test Cases</h3>
                         <pre id="tc-gherkin" class="code-block"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="test-strategy-generator" class="tab-content">
+                <div class="card">
+                    <h2>Generate Test Strategy</h2>
+                    <p>Enter Organization, Project & an Azure DevOps Work Item ID to generate a Detailed Test Plan based
+                        on the acceptance criteria.</p>
+                    <div class="input-group">
+                        <label for="ts-organization">Organization</label>
+                        <input type="text" id="ts-organization" placeholder="e.g., venkathcl2023">
+                    </div>
+                    <div class="input-group">
+                        <label for="ts-project">Project</label>
+                        <input type="text" id="ts-project" placeholder="e.g., Minerva">
+                    </div>
+                    <div class="input-group">
+                        <label for="ts-ado-item-id">ADO Work Item ID</label>
+                        <input type="text" id="ts-ado-item-id" placeholder="e.g., 12345">
+                    </div>
+                    <div class="input-group">
+                        <label for="ts-ado-pat">Azure DevOps PAT</label>
+                        <input type="password" id="ts-ado-pat" placeholder="Enter your ADO PAT">
+                    </div>
+                    <div class="input-group">
+                        <label for="ts-gemini-api-key">Gemini API Key</label>
+                        <input type="password" id="ts-gemini-api-key" placeholder="Enter your Gemini API Key">
+                    </div>
+                    <button class="primary-btn" id="generate-test-strategy-btn">Generate Test Strategy</button>
+
+                    <div class="loading" id="ts-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Generating...</span>
+                    </div>
+
+                    <div class="result-area" id="ts-result" style="display: none;">
+                        <h3>Acceptance Criteria Found</h3>
+                        <pre id="ts-criteria" class="code-block"></pre>
+                        <h3>Detailed Test Plan</h3>
+                        <div id="ts-plan" class="code-block" style="white-space: pre-wrap;"></div>
                     </div>
                 </div>
             </div>

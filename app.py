@@ -11,11 +11,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
-def get_ado_work_item(work_item_id, ado_pat):
+def get_ado_work_item(work_item_id, ado_pat, organization="venkathcl2023", project="Minerva"):
     if not ado_pat:
         raise Exception("Azure DevOps PAT is required to connect to the actual work item.")
         
-    url = f"https://dev.azure.com/venkathcl2023/Minerva/_apis/wit/workitems/{work_item_id}?api-version=7.1"
+    url = f"https://dev.azure.com/{organization}/{project}/_apis/wit/workitems/{work_item_id}?api-version=7.1"
     
     headers = {
         'Content-Type': 'application/json'
@@ -73,6 +73,44 @@ def generate_test_cases():
         )
         
         return jsonify({'gherkin': response.text, 'acceptance_criteria': acceptance_criteria})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate_test_strategy', methods=['POST'])
+def generate_test_strategy():
+    data = request.json
+    organization = data.get('organization')
+    project = data.get('project')
+    work_item_id = data.get('work_item_id')
+    ado_pat = data.get('ado_pat')
+    gemini_api_key = data.get('gemini_api_key')
+    
+    if not work_item_id or not organization or not project:
+        return jsonify({'error': 'organization, project, and work_item_id are required'}), 400
+        
+    try:
+        acceptance_criteria = get_ado_work_item(work_item_id, ado_pat, organization, project)
+        
+        if not gemini_api_key:
+             raise Exception("Gemini API Key is required to generate test strategy.")
+
+        client = genai.Client(api_key=gemini_api_key)
+
+        prompt = f"""
+        Given the following Acceptance Criteria from a user story, generate a Detailed Test Plan/Strategy.
+        
+        Acceptance Criteria:
+        {acceptance_criteria}
+        
+        Return ONLY the Detailed Test Plan/Strategy in a clear, structured markdown format.
+        """
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        
+        return jsonify({'test_strategy': response.text, 'acceptance_criteria': acceptance_criteria})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

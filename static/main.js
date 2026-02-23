@@ -141,3 +141,55 @@ document.getElementById('generate-sql-btn').addEventListener('click', async () =
         loading.style.display = 'none';
     }
 });
+
+document.getElementById('generate-test-strategy-btn').addEventListener('click', async () => {
+    const organization = document.getElementById('ts-organization').value.trim();
+    const project = document.getElementById('ts-project').value.trim();
+    const workItemId = document.getElementById('ts-ado-item-id').value.trim();
+    const adoPat = document.getElementById('ts-ado-pat').value.trim();
+    const geminiApiKey = document.getElementById('ts-gemini-api-key').value.trim();
+
+    if (!organization || !project || !workItemId) {
+        alert('Please enter Organization, Project, and Work Item ID');
+        return;
+    }
+
+    const btn = document.getElementById('generate-test-strategy-btn');
+    const loading = document.getElementById('ts-loading');
+    const resultArea = document.getElementById('ts-result');
+
+    btn.disabled = true;
+    loading.style.display = 'flex';
+    resultArea.style.display = 'none';
+
+    try {
+        const response = await fetch('/api/generate_test_strategy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                organization: organization,
+                project: project,
+                work_item_id: workItemId,
+                ado_pat: adoPat,
+                gemini_api_key: geminiApiKey
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('ts-criteria').textContent = data.acceptance_criteria;
+            document.getElementById('ts-plan').textContent = data.test_strategy;
+            resultArea.style.display = 'block';
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`An error occurred: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+    }
+});
