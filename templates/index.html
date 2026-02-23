@@ -18,12 +18,13 @@
 
         <main>
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('test-case-generator')">TestCaseGenerator</button>
+                <button class="tab-btn active" onclick="switchTab('test-strategy-generator')">Test Strategy
+                    Generator</button>
+                <button class="tab-btn" onclick="switchTab('test-case-generator')">TestCaseGenerator</button>
                 <button class="tab-btn" onclick="switchTab('sql-creation')">DataCompleteness SQL Creation</button>
-                <button class="tab-btn" onclick="switchTab('test-strategy-generator')">Test Strategy Generator</button>
             </div>
 
-            <div id="test-case-generator" class="tab-content active">
+            <div id="test-case-generator" class="tab-content">
                 <div class="card">
                     <h2>Generate Test Cases</h2>
                     <p>Enter an Azure DevOps Work Item ID to read acceptance criteria and generate 5 Gherkin test cases.
@@ -56,7 +57,7 @@
                 </div>
             </div>
 
-            <div id="test-strategy-generator" class="tab-content">
+            <div id="test-strategy-generator" class="tab-content active">
                 <div class="card">
                     <h2>Generate Test Strategy</h2>
                     <p>Enter Organization, Project & an Azure DevOps Work Item ID to generate a Detailed Test Plan based
