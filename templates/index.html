@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ETL Testing Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>AI ETL Testing Agent</h1>
+            <p>Automate your test case generation and data completeness checks.</p>
+        </header>
+
+        <main>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('test-case-generator')">TestCaseGenerator</button>
+                <button class="tab-btn" onclick="switchTab('sql-creation')">DataCompleteness SQL Creation</button>
+            </div>
+
+            <div id="test-case-generator" class="tab-content active">
+                <div class="card">
+                    <h2>Generate Test Cases</h2>
+                    <p>Enter an Azure DevOps Work Item ID to read acceptance criteria and generate 5 Gherkin test cases.
+                    </p>
+                    <div class="input-group">
+                        <label for="ado-item-id">ADO Work Item ID</label>
+                        <input type="text" id="ado-item-id" placeholder="e.g., 12345">
+                    </div>
+                    <div class="input-group">
+                        <label for="ado-pat">Azure DevOps PAT </label>
+                        <input type="password" id="ado-pat" placeholder="Enter your ADO PAT">
+                    </div>
+                    <div class="input-group">
+                        <label for="gemini-api-key">Gemini API Key </label>
+                        <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API Key">
+                    </div>
+                    <button class="primary-btn" id="generate-test-cases-btn">Generate Test Cases</button>
+
+                    <div class="loading" id="tc-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Generating...</span>
+                    </div>
+
+                    <div class="result-area" id="tc-result" style="display: none;">
+                        <h3>Acceptance Criteria Found</h3>
+                        <pre id="tc-criteria" class="code-block"></pre>
+                        <h3>Generated Test Cases</h3>
+                        <pre id="tc-gherkin" class="code-block"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sql-creation" class="tab-content">
+                <div class="card">
+                    <h2>Generate Completeness SQL</h2>
+                    <p>Upload a CSV file. The agent will read headers and generate table creation and completeness
+                        testing SQL.</p>
+
+                    <div class="file-upload-area" id="drop-zone">
+                        <input type="file" id="csv-file" accept=".csv" style="display: none;">
+                        <label for="csv-file" class="file-label">
+                            <span class="upload-icon">📁</span>
+                            <span class="upload-text">Click to browse or drag and drop a CSV file here</span>
+                        </label>
+                        <div id="file-name-display" class="file-name"></div>
+                    </div>
+
+                    <button class="primary-btn" id="generate-sql-btn">Generate SQL</button>
+
+                    <div class="loading" id="sql-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Processing...</span>
+                    </div>
+
+                    <div class="result-area" id="sql-result" style="display: none;">
+                        <h3>Table Creation SQL</h3>
+                        <pre id="sql-create-table" class="code-block"></pre>
+                        <h3>Completeness Testing SQL</h3>
+                        <pre id="sql-completeness" class="code-block"></pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+
+</html>
