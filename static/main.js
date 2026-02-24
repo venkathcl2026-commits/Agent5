@@ -290,3 +290,99 @@ document.getElementById('generate-java-btn').addEventListener('click', async () 
         loading.style.display = 'none';
     }
 });
+
+// Attach Test Cases Tab Logic
+const atcDropZone = document.getElementById('atc-drop-zone');
+const atcFileInput = document.getElementById('atc-csv-file');
+const atcFileNameDisplay = document.getElementById('atc-file-name-display');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    atcDropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+['dragenter', 'dragover'].forEach(eventName => {
+    atcDropZone.addEventListener(eventName, () => atcDropZone.classList.add('dragover'), false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    atcDropZone.addEventListener(eventName, () => atcDropZone.classList.remove('dragover'), false);
+});
+
+atcDropZone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length > 0) {
+        atcFileInput.files = files;
+        atcFileNameDisplay.textContent = `Selected file: ${files[0].name}`;
+    }
+}, false);
+
+atcFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        atcFileNameDisplay.textContent = `Selected file: ${e.target.files[0].name}`;
+    }
+});
+
+document.getElementById('attach-test-cases-btn').addEventListener('click', async () => {
+    const file = atcFileInput.files[0];
+    if (!file) {
+        alert('Please select a CSV file containing test cases');
+        return;
+    }
+
+    const organization = document.getElementById('atc-organization').value.trim();
+    const project = document.getElementById('atc-project').value.trim();
+    const workItemId = document.getElementById('atc-ado-item-id').value.trim();
+    const adoPat = document.getElementById('atc-ado-pat').value.trim();
+
+    if (!organization || !project || !workItemId || !adoPat) {
+        alert('Organization, Project, Work Item ID, and ADO PAT are required');
+        return;
+    }
+
+    const btn = document.getElementById('attach-test-cases-btn');
+    const loading = document.getElementById('atc-loading');
+    const resultArea = document.getElementById('atc-result');
+    const outputDiv = document.getElementById('atc-output');
+
+    btn.disabled = true;
+    loading.style.display = 'flex';
+    resultArea.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('organization', organization);
+    formData.append('project', project);
+    formData.append('work_item_id', workItemId);
+    formData.append('ado_pat', adoPat);
+
+    try {
+        const response = await fetch('/api/attach_test_cases', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            let outputHtml = `<strong>${data.message}</strong>\n\n`;
+            data.results.forEach(res => {
+                if (res.id) {
+                    outputHtml += `✅ Created Test Case #${res.id}: ${res.title}\n`;
+                } else {
+                    outputHtml += `❌ Failed: ${res.title} - ${res.status}\n`;
+                }
+            });
+            outputDiv.innerHTML = outputHtml;
+            resultArea.style.display = 'block';
+        } else {
+            outputDiv.innerHTML = `<span style="color: #ef4444; font-weight: 500;">❌ Error: ${data.error}</span>`;
+            resultArea.style.display = 'block';
+        }
+    } catch (error) {
+        alert(`An error occurred: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+    }
+});

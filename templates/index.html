@@ -23,6 +23,7 @@
                 <button class="tab-btn" onclick="switchTab('test-case-generator')">TestCaseGenerator</button>
                 <button class="tab-btn" onclick="switchTab('sql-creation')">DataCompleteness SQL Creation</button>
                 <button class="tab-btn" onclick="switchTab('code-converter')">Code Converter</button>
+                <button class="tab-btn" onclick="switchTab('attach-test-cases')">Attach Test Cases</button>
             </div>
 
             <div id="test-case-generator" class="tab-content">
@@ -37,12 +38,12 @@
                     <div class="input-group">
                         <label for="ado-pat">Azure DevOps PAT </label>
                         <input type="password" id="ado-pat" placeholder="Enter your ADO PAT"
-                            value="5wQeDd23b2gQKhJumMgJeyyzcJUkZdmt9p8uthwzB3Cly9QgdVAMJQQJ99CBACAAAAAAAAAAAAASAZDO5q62">
+                            value="{{ defaults.ado_pat }}">
                     </div>
                     <div class="input-group">
                         <label for="gemini-api-key">Gemini API Key </label>
                         <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API Key"
-                            value="AIzaSyC7ZngAlMTaoUuB-5ToLEAekbcVaKD8KRA">
+                            value="{{ defaults.gemini_api_key }}">
                     </div>
                     <button class="primary-btn" id="generate-test-cases-btn">Generate Test Cases</button>
 
@@ -67,11 +68,11 @@
                         on the acceptance criteria.</p>
                     <div class="input-group">
                         <label for="ts-organization">Organization</label>
-                        <input type="text" id="ts-organization" value="venkathcl2023">
+                        <input type="text" id="ts-organization" value="{{ defaults.ado_org }}">
                     </div>
                     <div class="input-group">
                         <label for="ts-project">Project</label>
-                        <input type="text" id="ts-project" value="Minerva">
+                        <input type="text" id="ts-project" value="{{ defaults.ado_project }}">
                     </div>
                     <div class="input-group">
                         <label for="ts-ado-item-id">ADO Work Item ID</label>
@@ -80,12 +81,12 @@
                     <div class="input-group">
                         <label for="ts-ado-pat">Azure DevOps PAT</label>
                         <input type="password" id="ts-ado-pat" placeholder="Enter your ADO PAT"
-                            value="5wQeDd23b2gQKhJumMgJeyyzcJUkZdmt9p8uthwzB3Cly9QgdVAMJQQJ99CBACAAAAAAAAAAAAASAZDO5q62">
+                            value="{{ defaults.ado_pat }}">
                     </div>
                     <div class="input-group">
                         <label for="ts-gemini-api-key">Gemini API Key</label>
                         <input type="password" id="ts-gemini-api-key" placeholder="Enter your Gemini API Key"
-                            value="AIzaSyC7ZngAlMTaoUuB-5ToLEAekbcVaKD8KRA">
+                            value="{{ defaults.gemini_api_key }}">
                     </div>
                     <button class="primary-btn" id="generate-test-strategy-btn">Generate Test Strategy</button>
 
@@ -154,7 +155,7 @@
                     <div class="input-group">
                         <label for="cc-gemini-api-key">Gemini API Key</label>
                         <input type="password" id="cc-gemini-api-key" placeholder="Enter your Gemini API Key"
-                            value="AIzaSyC7ZngAlMTaoUuB-5ToLEAekbcVaKD8KRA">
+                            value="{{ defaults.gemini_api_key }}">
                     </div>
                     <button class="primary-btn" id="convert-code-btn">Convert Code</button>
 
@@ -168,6 +169,60 @@
                         <pre id="cc-python" class="code-block"></pre>
                         <h3>C# Code</h3>
                         <pre id="cc-csharp" class="code-block"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="attach-test-cases" class="tab-content">
+                <div class="card">
+                    <h2>Attach Test Cases to ADO</h2>
+                    <p>Upload an Excel (CSV) file to automatically create and link Test Cases to an Azure DevOps Work
+                        Item. The CSV must contain a header row with the following columns:</p>
+                    <ul style="margin-bottom: 20px; padding-left: 20px; color: #4b5563;">
+                        <li><strong>Title</strong> (Required): The name of the test case.</li>
+                        <li><strong>Steps</strong> (Optional): The steps to execute the test.</li>
+                        <li><strong>Expected Result</strong> (Optional): The expected outcome.</li>
+                        <li><strong>Tags</strong> (Optional): Comma-separated tags (e.g., UI, Regression).</li>
+                    </ul>
+
+                    <div class="input-group">
+                        <label for="atc-organization">Organization</label>
+                        <input type="text" id="atc-organization" value="{{ defaults.ado_org }}">
+                    </div>
+                    <div class="input-group">
+                        <label for="atc-project">Project</label>
+                        <input type="text" id="atc-project" value="{{ defaults.ado_project }}">
+                    </div>
+                    <div class="input-group">
+                        <label for="atc-ado-item-id">ADO Work Item ID</label>
+                        <input type="text" id="atc-ado-item-id" value="2">
+                    </div>
+                    <div class="input-group">
+                        <label for="atc-ado-pat">Azure DevOps PAT</label>
+                        <input type="password" id="atc-ado-pat" placeholder="Enter your ADO PAT"
+                            value="{{ defaults.ado_pat }}">
+                    </div>
+
+                    <div class="file-upload-area" id="atc-drop-zone">
+                        <input type="file" id="atc-csv-file" accept=".csv" style="display: none;">
+                        <label for="atc-csv-file" class="file-label">
+                            <span class="upload-icon">📁</span>
+                            <span class="upload-text">Click to browse or drag and drop a CSV file here</span>
+                        </label>
+                        <div id="atc-file-name-display" class="file-name"></div>
+                    </div>
+
+                    <button class="primary-btn" id="attach-test-cases-btn" style="margin-top: 20px;">Attach Test
+                        Cases</button>
+
+                    <div class="loading" id="atc-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Processing and Attaching...</span>
+                    </div>
+
+                    <div class="result-area" id="atc-result" style="display: none;">
+                        <h3>Results</h3>
+                        <div id="atc-output" class="code-block" style="white-space: pre-wrap;"></div>
                     </div>
                 </div>
             </div>

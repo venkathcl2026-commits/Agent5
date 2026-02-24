@@ -36,7 +36,13 @@ def get_ado_work_item(work_item_id, ado_pat, organization="venkathcl2023", proje
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    defaults = {
+        'ado_pat': os.environ.get('ADO_PAT', ''),
+        'ado_org': os.environ.get('ADO_ORG', ''),
+        'ado_project': os.environ.get('ADO_PROJECT', ''),
+        'gemini_api_key': os.environ.get('GEMINI_API_KEY', '')
+    }
+    return render_template('index.html', defaults=defaults)
 
 @app.route('/api/generate_test_cases', methods=['POST'])
 def generate_test_cases():
@@ -223,6 +229,75 @@ def convert_code():
         result_json = json.loads(text)
         
         return jsonify(result_json)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/attach_test_cases', methods=['POST'])
+def attach_test_cases():
+    organization = request.form.get('organization')
+    project = request.form.get('project')
+    work_item_id = request.form.get('work_item_id')
+    ado_pat = request.form.get('ado_pat')
+    
+    if not all([organization, project, work_item_id, ado_pat]):
+        return jsonify({'error': 'organization, project, work_item_id, and ado_pat are required'}), 400
+        
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+        
+    created_test_cases = []
+    try:
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+        csv_input = csv.DictReader(stream)
+        
+        headers = {
+            'Content-Type': 'application/json-patch+json'
+        }
+        
+        for row in csv_input:
+            title = row.get('Title', 'Untitled Test Case')
+            steps = row.get('Steps', '')
+            expected = row.get('Expected Result', '')
+            tags = row.get('Tags', '')
+            
+            # Simple description formatting for the test case
+            description = f"<b>Steps:</b><br>{steps}<br><br><b>Expected Result:</b><br>{expected}"
+            
+            # Create Test Case payload
+            payload = [
+                {"op": "add", "path": "/fields/System.Title", "value": title},
+                {"op": "add", "path": "/fields/System.Description", "value": description},
+                {"op": "add", "path": "/relations/-", "value": {
+                    "rel": "Microsoft.VSTS.Common.TestedBy-Reverse",
+                    "url": f"https://dev.azure.com/{organization}/{project}/_apis/wit/workitems/{work_item_id}",
+                    "attributes": {"comment": "Attached by Agent"}
+                }}
+            ]
+            
+            if tags:
+                payload.append({"op": "add", "path": "/fields/System.Tags", "value": tags})
+            
+            url = f"https://dev.azure.com/{organization}/{project}/_apis/wit/workitems/$Test Case?api-version=7.1"
+            res = requests.post(url, headers=headers, json=payload, auth=('', ado_pat))
+            
+            if res.status_code in [200, 201]:
+                tc_data = res.json()
+                created_test_cases.append({'id': tc_data['id'], 'title': title, 'status': 'Success'})
+            else:
+                try:
+                    error_msg = res.json().get('message', res.text)
+                except:
+                    error_msg = res.text
+                created_test_cases.append({'title': title, 'status': f'Failed: {error_msg}'})
+                
+        return jsonify({
+            'message': 'Processed test cases',
+            'results': created_test_cases
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
