@@ -154,5 +154,78 @@ def generate_sql():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/generate_java_from_gherkin', methods=['POST'])
+def generate_java_from_gherkin():
+    data = request.json
+    gherkin_code = data.get('gherkin_code')
+    gemini_api_key = data.get('gemini_api_key')
+    
+    if not gherkin_code:
+        return jsonify({'error': 'gherkin_code is required'}), 400
+        
+    try:
+        if not gemini_api_key:
+             raise Exception("Gemini API Key is required.")
+
+        client = genai.Client(api_key=gemini_api_key)
+
+        prompt = f"""
+        Given the following Gherkin scenarios, generate a complete and well-structured Java class implementing these scenarios (e.g., using Cucumber annotations, or just standard Java unit test methods).
+        
+        Gherkin:
+        {gherkin_code}
+        
+        Return exactly ONLY the valid Java code snippet. No markdown blocks, no HTML, no explanation, just the raw Java source code.
+        """
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        
+        text = response.text.replace('```java', '').replace('```', '').strip()
+        
+        return jsonify({'java': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert_code', methods=['POST'])
+def convert_code():
+    data = request.json
+    java_code = data.get('java_code')
+    gemini_api_key = data.get('gemini_api_key')
+    
+    if not java_code:
+        return jsonify({'error': 'java_code is required'}), 400
+        
+    try:
+        if not gemini_api_key:
+             raise Exception("Gemini API Key is required to convert code.")
+
+        client = genai.Client(api_key=gemini_api_key)
+
+        prompt = f"""
+        Given the following Java code, convert it into both Python and C#.
+        
+        Java Code:
+        {java_code}
+        
+        Please return a strictly valid JSON object with exactly two keys: "python" (containing the Python code string) and "csharp" (containing the C# code string). Do not include any other text or markdown formatting.
+        """
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        
+        import json
+        text = response.text.replace('```json', '').replace('```', '').strip()
+        result_json = json.loads(text)
+        
+        return jsonify(result_json)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

@@ -193,3 +193,100 @@ document.getElementById('generate-test-strategy-btn').addEventListener('click', 
         loading.style.display = 'none';
     }
 });
+
+document.getElementById('convert-code-btn').addEventListener('click', async () => {
+    const javaCode = document.getElementById('cc-java-code').value.trim();
+    const geminiApiKey = document.getElementById('cc-gemini-api-key').value.trim();
+
+    if (!javaCode) {
+        alert('Please enter Java code');
+        return;
+    }
+    if (!geminiApiKey) {
+        alert('Please enter a Gemini API Key');
+        return;
+    }
+
+    const btn = document.getElementById('convert-code-btn');
+    const loading = document.getElementById('cc-loading');
+    const resultArea = document.getElementById('cc-result');
+
+    btn.disabled = true;
+    loading.style.display = 'flex';
+    resultArea.style.display = 'none';
+
+    try {
+        const response = await fetch('/api/convert_code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                java_code: javaCode,
+                gemini_api_key: geminiApiKey
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('cc-python').textContent = data.python;
+            document.getElementById('cc-csharp').textContent = data.csharp;
+            resultArea.style.display = 'block';
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`An error occurred: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+    }
+});
+
+document.getElementById('generate-java-btn').addEventListener('click', async () => {
+    const gherkinCode = document.getElementById('cc-gherkin-code').value.trim();
+    const geminiApiKey = document.getElementById('cc-gemini-api-key').value.trim();
+
+    if (!gherkinCode) {
+        alert('Please enter Gherkin code');
+        return;
+    }
+    if (!geminiApiKey) {
+        alert('Please enter a Gemini API Key');
+        return;
+    }
+
+    const btn = document.getElementById('generate-java-btn');
+    const javaTextarea = document.getElementById('cc-java-code');
+    const loading = document.getElementById('cc-loading');
+
+    btn.disabled = true;
+    loading.style.display = 'flex';
+
+    try {
+        const response = await fetch('/api/generate_java_from_gherkin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                gherkin_code: gherkinCode,
+                gemini_api_key: geminiApiKey
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            javaTextarea.value = data.java;
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`An error occurred: ${error.message}`);
+    } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+    }
+});

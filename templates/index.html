@@ -22,6 +22,7 @@
                     Generator</button>
                 <button class="tab-btn" onclick="switchTab('test-case-generator')">TestCaseGenerator</button>
                 <button class="tab-btn" onclick="switchTab('sql-creation')">DataCompleteness SQL Creation</button>
+                <button class="tab-btn" onclick="switchTab('code-converter')">Code Converter</button>
             </div>
 
             <div id="test-case-generator" class="tab-content">
@@ -31,15 +32,17 @@
                     </p>
                     <div class="input-group">
                         <label for="ado-item-id">ADO Work Item ID</label>
-                        <input type="text" id="ado-item-id" placeholder="e.g., 12345">
+                        <input type="text" id="ado-item-id" value="2">
                     </div>
                     <div class="input-group">
                         <label for="ado-pat">Azure DevOps PAT </label>
-                        <input type="password" id="ado-pat" placeholder="Enter your ADO PAT">
+                        <input type="password" id="ado-pat" placeholder="Enter your ADO PAT"
+                            value="5wQeDd23b2gQKhJumMgJeyyzcJUkZdmt9p8uthwzB3Cly9QgdVAMJQQJ99CBACAAAAAAAAAAAAASAZDO5q62">
                     </div>
                     <div class="input-group">
                         <label for="gemini-api-key">Gemini API Key </label>
-                        <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API Key">
+                        <input type="password" id="gemini-api-key" placeholder="Enter your Gemini API Key"
+                            value="AIzaSyC7ZngAlMTaoUuB-5ToLEAekbcVaKD8KRA">
                     </div>
                     <button class="primary-btn" id="generate-test-cases-btn">Generate Test Cases</button>
 
@@ -64,23 +67,25 @@
                         on the acceptance criteria.</p>
                     <div class="input-group">
                         <label for="ts-organization">Organization</label>
-                        <input type="text" id="ts-organization" placeholder="e.g., venkathcl2023">
+                        <input type="text" id="ts-organization" value="venkathcl2023">
                     </div>
                     <div class="input-group">
                         <label for="ts-project">Project</label>
-                        <input type="text" id="ts-project" placeholder="e.g., Minerva">
+                        <input type="text" id="ts-project" value="Minerva">
                     </div>
                     <div class="input-group">
                         <label for="ts-ado-item-id">ADO Work Item ID</label>
-                        <input type="text" id="ts-ado-item-id" placeholder="e.g., 12345">
+                        <input type="text" id="ts-ado-item-id" value="2">
                     </div>
                     <div class="input-group">
                         <label for="ts-ado-pat">Azure DevOps PAT</label>
-                        <input type="password" id="ts-ado-pat" placeholder="Enter your ADO PAT">
+                        <input type="password" id="ts-ado-pat" placeholder="Enter your ADO PAT"
+                            value="5wQeDd23b2gQKhJumMgJeyyzcJUkZdmt9p8uthwzB3Cly9QgdVAMJQQJ99CBACAAAAAAAAAAAAASAZDO5q62">
                     </div>
                     <div class="input-group">
                         <label for="ts-gemini-api-key">Gemini API Key</label>
-                        <input type="password" id="ts-gemini-api-key" placeholder="Enter your Gemini API Key">
+                        <input type="password" id="ts-gemini-api-key" placeholder="Enter your Gemini API Key"
+                            value="AIzaSyC7ZngAlMTaoUuB-5ToLEAekbcVaKD8KRA">
                     </div>
                     <button class="primary-btn" id="generate-test-strategy-btn">Generate Test Strategy</button>
 
@@ -125,6 +130,44 @@
                         <pre id="sql-create-table" class="code-block"></pre>
                         <h3>Completeness Testing SQL</h3>
                         <pre id="sql-completeness" class="code-block"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="code-converter" class="tab-content">
+                <div class="card">
+                    <h2>Convert Code</h2>
+                    <p>Enter Gherkin below to generate Java code, or directly enter Java code to convert it to both
+                        Python and C#.</p>
+                    <div class="input-group">
+                        <label for="cc-gherkin-code">Gherkin Input (Optional)</label>
+                        <textarea id="cc-gherkin-code" placeholder="Given... When... Then..." rows="4"
+                            style="width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-family: monospace; resize: vertical; margin-bottom: 10px;">Print Hi Message</textarea>
+                        <button class="secondary-btn" id="generate-java-btn" style="margin-bottom: 20px;">Generate Java
+                            from Gherkin</button>
+                    </div>
+                    <div class="input-group">
+                        <label for="cc-java-code">Java Code</label>
+                        <textarea id="cc-java-code" placeholder="Enter Java code here..." rows="10"
+                            style="width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-family: monospace; resize: vertical;"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="cc-gemini-api-key">Gemini API Key</label>
+                        <input type="password" id="cc-gemini-api-key" placeholder="Enter your Gemini API Key"
+                            value="AIzaSyC7ZngAlMTaoUuB-5ToLEAekbcVaKD8KRA">
+                    </div>
+                    <button class="primary-btn" id="convert-code-btn">Convert Code</button>
+
+                    <div class="loading" id="cc-loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>Converting...</span>
+                    </div>
+
+                    <div class="result-area" id="cc-result" style="display: none;">
+                        <h3>Python Code</h3>
+                        <pre id="cc-python" class="code-block"></pre>
+                        <h3>C# Code</h3>
+                        <pre id="cc-csharp" class="code-block"></pre>
                     </div>
                 </div>
             </div>
